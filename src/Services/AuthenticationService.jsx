@@ -61,7 +61,9 @@ export function isAuthenticated() {
 }
 export function getRole() {
   let roles = localStorage.getItem("roles");
-  return roles.split(" ");
+  if(roles !== null){
+    return roles.split(" ");
+  }
 }
 export function isTeacher() {
   let roles = getRole();
