@@ -1,35 +1,35 @@
 import axios from "axios";
 import { getBaseUrl } from "./BaseUrl";
+
 export async function login(username, password) {
   const url = getBaseUrl() + "user/login";
   let value = await axios
     .post(url, { username: username, password: password })
     .then((response) => {
-      if (response.data.isAuthenticated) {
-        let roles = response.data.roles.join(" ");
-        localStorage.setItem("x-access-token", response.data.token);
-        localStorage.setItem(
-          "x-access-token-expiration",
-          Date.now() + 2 * 60 * 60 * 1000
-        );
-        localStorage.setItem("teacherId",response.data.teacherId)
-        localStorage.setItem("username", response.data.userName);
-        localStorage.setItem("roles", roles);
-        return true;
-      } else {
-        throw Error(response.message);
-      }
+      let roles = response.data.roles.join(" ");
+      localStorage.setItem("x-access-token", response.data.token);
+      localStorage.setItem(
+        "x-access-token-expiration",
+        Date.now() + 2 * 60 * 60 * 1000
+      );
+      localStorage.setItem("teacherId", response.data.teacherId);
+      localStorage.setItem("username", response.data.userName);
+      localStorage.setItem("roles", roles);
+      return true;
     })
     .catch((error) => {
-      return false;
+      if (error.response.status === 404) {
+        throw new Error(error.response.data);
+      } else {
+        throw new Error("An error has occurred, please try again");
+      }
     });
   return value;
 }
 
 export async function register(username, password, department, faculty, role) {
   const url = getBaseUrl() + "user/register";
-
-  let value = await axios
+  await axios
     .post(url, {
       username: username,
       password: password,
@@ -37,17 +37,16 @@ export async function register(username, password, department, faculty, role) {
       faculty: faculty,
       role: role,
     })
-    .then((response) => {
-      if (response.data.statusCode === 200) {
-        return true;
-      } else {
-        throw Error(response.data.value);
-      }
-    })
     .catch((err) => {
-      return false;
+      if (err.response.status === 303) {
+        throw Error("Exists");
+      } else if (err.response.status === 400) {
+        const error = { message: "Details", errors: err.response.data.map(x=>x.description) };
+        throw error;
+      } else {
+        throw Error("Internal Error");
+      }
     });
-  return value;
 }
 
 export function getUserName() {
@@ -75,6 +74,10 @@ export function logout() {
   localStorage.removeItem("x-access-token");
 }
 
-export function getTeacherId(){
-    return parseInt(localStorage.getItem("teacherId"));
+export function getTeacherId() {
+  return parseInt(localStorage.getItem("teacherId"));
+}
+
+export function getAccessToken() {
+  return localStorage.getItem("x-access-token");
 }

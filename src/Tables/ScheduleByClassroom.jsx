@@ -28,6 +28,7 @@ export default function ScheduleByClassroom() {
             className="p-2 my-2 fullWidth"
             onChange={(e) => {
               setSelectedBuilding(e.target.value);
+              setSelectedClassroom("")
             }}
           >
             <option value="">Select the building</option>
@@ -60,8 +61,9 @@ export default function ScheduleByClassroom() {
           </Form.Control>
         </Col>
         <Col>
-          <Button
+          <Button          
             variant="success"
+            disabled={!selectedClassroom}
             type="submit"
             className="mx-2 my-2 blockButton"
             onClick={async () => {
@@ -71,7 +73,7 @@ export default function ScheduleByClassroom() {
                   id: x.id,
                   name: x.courseName,
                   type: x.lessonType,
-                  teacher: x.teacher.department,
+                  teacher: x.teacher.userName,
                   classNumber: x.classroom.roomNumber,
                   group: x.group.groupNumber,
                   day: x.day,

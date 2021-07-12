@@ -1,6 +1,10 @@
 .create{
     height: 100%;
+    width:100%;
 }
 .fullWidth{
     width: 100%;
+}
+.list{
+    text-align: left;
 }

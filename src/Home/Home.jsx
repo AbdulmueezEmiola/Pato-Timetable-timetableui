@@ -1,7 +1,7 @@
 import Divider from "../Components/Divider";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faStar, faChalkboardTeacher,faUsers,faSchool,faPlus } from "@fortawesome/free-solid-svg-icons";
-import {Button,Navbar} from 'react-bootstrap'
+import { faStar, faChalkboardTeacher,faUsers,faSchool} from "@fortawesome/free-solid-svg-icons";
+import {Button} from 'react-bootstrap'
 
 import "./Home.css"
 export default function Home(){

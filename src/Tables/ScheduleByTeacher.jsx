@@ -1,6 +1,4 @@
-import { Navbar, Button, Form, Row, Col } from "react-bootstrap";
-import { faPlus } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {  Button, Form, Row, Col } from "react-bootstrap";
 import ScheduleTable from "./Table";
 import { useState, useEffect } from "react";
 import { getLessonsByTeachers, getTeachers } from "../Services/LessonService";
@@ -28,9 +26,11 @@ export default function ScheduleByTeacher() {
             as="select"
             size="lg"
             custom
-            className="p-2 my-2 fullWidth"
+            className="p-2 my-2 fullWidth"            
             onChange={(e) => {
               setSelectedFaculty(e.target.value);
+              setSelectedDepartment("");
+              setSelectedTeacher("")
             }}
           >
             <option value="">Select Faculty</option>
@@ -48,8 +48,10 @@ export default function ScheduleByTeacher() {
             size="lg"
             custom
             className="p-2 my-2 fullWidth"
+            value={selectedDepartment}
             onChange={(e) => {
               setSelectedDepartment(e.target.value);
+              setSelectedTeacher("")
             }}
           >
             <option value="">Select Department</option>
@@ -76,16 +78,17 @@ export default function ScheduleByTeacher() {
             {teachers
               .filter((x) => x.faculty.toLowerCase() === selectedFaculty)
               .filter((z) => z.department.toLowerCase() === selectedDepartment)
-              .map((x) => {return {id:x.id,userId:x.userId}})    
+              .map((x) => {return {id:x.id,userName:x.userName}})    
               .filter((v, i, a) => a.indexOf(v) === i)                            
               .map((y) => (
-                <option value={y.id}>{y.userId}</option>
+                <option value={y.id}>{y.userName}</option>
               ))}
           </Form.Control>
         </Col>
         <Col>
           <Button
             variant="success"
+            disabled={!selectedTeacher}
             type="submit"
             className="mx-2 my-2 blockButton"
             onClick={async () => {
@@ -95,7 +98,7 @@ export default function ScheduleByTeacher() {
                   id: x.id,
                   name: x.courseName,
                   type: x.lessonType,
-                  teacher: x.teacher.department,
+                  teacher: x.teacher.userName,
                   classNumber: x.classroom.roomNumber,
                   group: x.group.groupNumber,
                   day: x.day,

@@ -1,5 +1,5 @@
 import { Navbar,Nav } from "react-bootstrap"
-import { isAuthenticated,logout,isTeacher } from "../Services/AuthenticationService"
+import { isAuthenticated,logout,isTeacher,getUserName } from "../Services/AuthenticationService"
 import {useHistory} from 'react-router'
 
 export default function NavBar(){
@@ -8,7 +8,7 @@ export default function NavBar(){
     return(
         <Navbar bg="dark px-3" variant="dark" text="white">
             <Navbar.Brand>
-                Welcome Abdulmueez
+                Welcome {getUserName()}
             </Navbar.Brand>
             <Navbar.Collapse className="justify-content-end">
               <Nav>

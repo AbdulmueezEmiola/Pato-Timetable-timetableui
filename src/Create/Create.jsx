@@ -1,7 +1,7 @@
 import Divider from "../Components/Divider";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar } from "@fortawesome/free-solid-svg-icons";
-import { Form, Button, Container, Row, Col } from "react-bootstrap";
+import { Form, Button, Container, Row, Col, Alert } from "react-bootstrap";
 import "./Create.css";
 import {
   getBuildings,
@@ -10,53 +10,87 @@ import {
   getEndTime,
   createLesson,
 } from "../Services/LessonService";
-import { getTeacherId } from "../Services/AuthenticationService";
+import { getTeacherId, logout } from "../Services/AuthenticationService";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { getLesson, editLesson} from "../Services/LessonService";
+import { getLesson, editLesson } from "../Services/LessonService";
+import { useHistory } from "react-router";
 
 export default function Create() {
   const { id } = useParams();
+  const history = useHistory();
+
   const [buildings, setBuildings] = useState([]);
   const [selectedBuilding, setSelectedBuilding] = useState("");
   const [selectedFaculty, setSelectedFaculty] = useState("");
+
   const [selectedYear, setSelectedYear] = useState();
   const [groups, setGroups] = useState([]);
   const [startTimes, setStartTimes] = useState([]);
   const [endTimes, setEndTimes] = useState([]);
 
-  const [courseName, setCourseName] = useState("");
-  const [startTime, setStartTime] = useState("");
-  const [endTime, setEndTime] = useState("");
-  const [lessonType, setLessonType] = useState("");
-  const [day, setDay] = useState("");
-  const [classroomId, setClassroomId] = useState("");
-  const [groupId, setGroupId] = useState("");
-  const [week, setWeek] = useState("");
+  const [formBody, setFormBody] = useState({});
+  const [showButton, setShowButton] = useState(false);
+  const [errors, setErrors] = useState([]);
+  const [success, setSuccess] = useState(false);
+  const validateFormBody = () => {
+    if (!formBody.courseName) {
+      return false;
+    }
+    if (!formBody.startTime) {
+      return false;
+    }
+    if (!formBody.endTime) {
+      return false;
+    }
+    if (isNaN(formBody.week)) {
+      return false;
+    }
+    if (isNaN(formBody.lessonType)) {
+      return false;
+    }
+    if (isNaN(formBody.day)) {
+      return false;
+    }
+    if (!formBody.classroomId) {
+      return false;
+    }
+    if (!formBody.groupId) {
+      return false;
+    }
+    return true;
+  };
 
   useEffect(() => {
     if (!!id) {
       getLesson(id).then((value) => {
-        setCourseName(value.courseName);
-        setStartTime(value.startTime);
-        setEndTime(value.endTime);
-        setLessonType(value.lessonType);
-        setDay(value.day);
-        setClassroomId(value.classroomId);
-        setGroupId(value.groupId);
-        setWeek(value.week);
+        setFormBody({
+          courseName: value.courseName,
+          startTime: value.startTime,
+          endTime: value.endTime,
+          week: parseInt(value.week),
+          lessonType: parseInt(value.lessonType),
+          day: parseInt(value.day),
+          classroomId: value.classroomId,
+          groupId: value.groupId,
+          teacherId: getTeacherId(),
+          id: id,
+        });
       });
     }
     getBuildings().then((x) => setBuildings(x));
     getGroups().then((x) => setGroups(x));
     setStartTimes(getStartTime());
     setEndTimes(getEndTime());
-  }, []);
+  }, [id]);
 
+  useEffect(() => {
+    setShowButton(validateFormBody());
+  },[formBody]);
+  
   return (
-    <div className="create">
       <div className="vertical-centered">
-        <div className="registration">
+        <div className="create">
           <h2>Create a new lesson</h2>
           <Divider>
             <FontAwesomeIcon icon={faStar} spin />
@@ -70,8 +104,10 @@ export default function Create() {
               <Form.Control
                 type="text"
                 placeholder="Subject Name"
-                value={courseName}
-                onChange={(e) => setCourseName(e.target.value)}
+                value={formBody.courseName}
+                onChange={(e) =>
+                  setFormBody({ ...formBody, courseName: e.target.value })
+                }
               />
             </Form.Group>
 
@@ -84,8 +120,13 @@ export default function Create() {
                       size="lg"
                       custom
                       className="p-2 fullWidth"
-                      value={week}
-                      onChange={(e) => setWeek(e.target.value)}
+                      value={formBody.week}
+                      onChange={(e) =>
+                        setFormBody({
+                          ...formBody,
+                          week: parseInt(e.target.value),
+                        })
+                      }
                     >
                       <option value="">Please select the week type</option>
                       <option value="1">Odd</option>
@@ -98,8 +139,13 @@ export default function Create() {
                       size="lg"
                       custom
                       className="p-2 fullWidth"
-                      value={day}
-                      onChange={(e) => setDay(e.target.value)}
+                      value={formBody.day}
+                      onChange={(e) =>
+                        setFormBody({
+                          ...formBody,
+                          day: parseInt(e.target.value),
+                        })
+                      }
                     >
                       <option value="">Please select the Day Of Week</option>
                       <option value="0">Monday</option>
@@ -119,8 +165,13 @@ export default function Create() {
               size="lg"
               custom
               className="p-2 my-3 fullWidth"
-              value={lessonType}
-              onChange={(e) => setLessonType(e.target.value)}
+              value={formBody.lessonType}
+              onChange={(e) =>
+                setFormBody({
+                  ...formBody,
+                  lessonType: parseInt(e.target.value),
+                })
+              }
             >
               <option value="">Please select the Lecture type</option>
               <option value="0">Laboratory</option>
@@ -137,8 +188,10 @@ export default function Create() {
                       size="lg"
                       custom
                       className="p-2 fullWidth"
-                      value={startTime}
-                      onChange={(e) => setStartTime(e.target.value)}
+                      value={formBody.startTime}
+                      onChange={(e) =>
+                        setFormBody({ ...formBody, startTime: e.target.value })
+                      }
                     >
                       <option value="">Please select the start time</option>
                       {startTimes.map((y) => (
@@ -152,8 +205,10 @@ export default function Create() {
                       size="lg"
                       custom
                       className="p-2 fullWidth"
-                      value={endTime}
-                      onChange={(e) => setEndTime(e.target.value)}
+                      value={formBody.endTime}
+                      onChange={(e) =>
+                        setFormBody({ ...formBody, endTime: e.target.value })
+                      }
                     >
                       <option value="">Please select the end time</option>
                       {endTimes.map((y) => (
@@ -175,9 +230,10 @@ export default function Create() {
                       as="select"
                       size="lg"
                       custom
-                      className="p-2 fullWidth"                      
+                      className="p-2 fullWidth"
                       onChange={(e) => {
                         setSelectedBuilding(e.target.value);
+                        setFormBody({ ...formBody, classroomId: "" });
                       }}
                     >
                       <option value="">Please select the building</option>
@@ -194,8 +250,13 @@ export default function Create() {
                       size="lg"
                       custom
                       className="p-2 fullWidth"
-                      value={classroomId}
-                      onChange={(e) => setClassroomId(e.target.value)}
+                      value={formBody.classroomId}
+                      onChange={(e) =>
+                        setFormBody({
+                          ...formBody,
+                          classroomId: e.target.value,
+                        })
+                      }
                     >
                       <option value="">Please select the classroom</option>
                       {buildings
@@ -221,7 +282,9 @@ export default function Create() {
                       custom
                       className="p-2 fullWidth"
                       onChange={(e) => {
+                        setSelectedYear("");
                         setSelectedFaculty(e.target.value);
+                        setFormBody({ ...formBody, groupId: "" });
                       }}
                     >
                       <option value="">Please select the Faculty</option>
@@ -238,6 +301,7 @@ export default function Create() {
                       className="p-2 fullWidth"
                       onChange={(e) => {
                         setSelectedYear(e.target.value);
+                        setFormBody({ ...formBody, groupId: "" });
                       }}
                     >
                       <option value="">Please select the year</option>
@@ -255,8 +319,10 @@ export default function Create() {
                       size="lg"
                       custom
                       className="p-2 fullWidth"
-                      value={groupId}
-                      onChange={(e) => setGroupId(e.target.value)}
+                      value={formBody.groupId}
+                      onChange={(e) =>
+                        setFormBody({ ...formBody, groupId: e.target.value })
+                      }
                     >
                       <option value="">Please select the group</option>
                       {groups
@@ -270,56 +336,89 @@ export default function Create() {
                 </Row>
               </Container>
             </Form.Group>
+
             {
-                !!id?<Button
+              success && <Alert variant="success">The lesson has been successfully registered</Alert>
+            }
+            
+            {errors.length > 0 && (
+              <Alert variant="danger">
+                <ul>
+                  {errors.map((error, idx) => (
+                    <li key={idx} className="list">
+                      {error}
+                    </li>
+                  ))}
+                </ul>
+              </Alert>
+            )}
+
+            {id ? (
+              <Button
                 variant="success"
                 type="button"
                 className="mx-2 my-4"
                 onClick={async () => {
-                  let data = {
-                    courseName: courseName,
-                    startTime: startTime,
-                    endTime: endTime,
-                    week: parseInt(week),
-                    lessonType: parseInt(lessonType),
-                    day: parseInt(day),
-                    classroomId: classroomId,
-                    groupId: groupId,
-                    teacherId: getTeacherId(),
-                    id:id
-                  };
-                  await editLesson(id,data);
+                  setSuccess(false)
+                  setErrors([])
+                  try {
+
+                    await editLesson(id, {
+                      ...formBody,
+                      teacherId: getTeacherId(),
+                    });            
+                    setSuccess(true)
+                  } catch (err) {
+                    if (err.message === "Unauthorized") {
+                      logout();
+                      history.push("/login");
+                    } else if (err.message === "Details") {
+                      setErrors(err.errors);
+                    } else {
+                      setErrors([
+                        "An error occurred, the lesson couldn't be created",
+                      ]);
+                    }
+                  }
                 }}
+                disabled={!showButton}
               >
                 Edit
-              </Button>:
+              </Button>
+            ) : (
               <Button
-              variant="success"
-              type="button"
-              className="mx-2 my-4"
-              onClick={async () => {
-                let data = {
-                  courseName: courseName,
-                  startTime: startTime,
-                  endTime: endTime,
-                  week: parseInt(week),
-                  lessonType: parseInt(lessonType),
-                  day: parseInt(day),
-                  classroomId: classroomId,
-                  groupId: groupId,
-                  teacherId: getTeacherId(),                  
-                };
-                await createLesson(data);
-              }}
-            >
-              Create
-            </Button>
-
-            }
-            
+                variant="success"
+                type="button"
+                className="mx-2 my-4"
+                onClick={async () => {
+                  setSuccess(false)
+                  setErrors([])
+                  try {
+                    await createLesson({
+                      ...formBody,
+                      teacherId: getTeacherId(),
+                    });
+                    setSuccess(true)
+                  } catch (err) {
+                    if (err.message === "Unauthorized") {
+                      logout();
+                      history.push("/login");
+                    } else if (err.message === "Details") {
+                      setErrors(err.errors);
+                    } else {
+                      setErrors([
+                        "An error occurred, the lesson couldn't be created",
+                      ]);
+                    }
+                  }
+                }}
+                disabled={!showButton}
+              >
+                Create
+              </Button>
+            )}
           </Form>
         </div>
-      </div>
-    </div>
+      </div>   
   );
 }

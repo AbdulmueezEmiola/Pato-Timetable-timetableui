@@ -1,7 +1,7 @@
 import Divider from "../Components/Divider";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faStar } from "@fortawesome/free-solid-svg-icons";
-import {Form,Button} from 'react-bootstrap'
+import {Form,Button,Alert} from 'react-bootstrap'
 import "./Login.css"
 import { login } from "../Services/AuthenticationService";
 import { useState } from "react";
@@ -9,9 +9,10 @@ import {useHistory} from 'react-router'
 
 export default function Login(){
     const [userName,setUserName] = useState("")
-    const [password,setPassword] = useState("")
-    const history = useHistory()
+    const [password,setPassword] = useState("")    
+    const [error,setError] = useState("")
 
+    const history = useHistory()
     return (
         <div className="vertical-centered">
             <div className="login">
@@ -26,7 +27,13 @@ export default function Login(){
                         <Form.Control type="password" placeholder="Password" value={password}
                             onChange={(e)=>setPassword(e.target.value)}/>
                     </Form.Group>
-                    <Button variant="success" type="button" className="mx-2" onClick={async()=>{
+
+                    {
+                        error && <Alert variant="danger">{error}</Alert>
+                    }
+
+                    <Button variant="success" type="button" className="mx-2" onClick={async()=>{                        
+                        setError("")
                         try{
                             let value = await login(userName,password)
                             if(value){
@@ -35,7 +42,7 @@ export default function Login(){
                             }
                         }
                         catch(err){
-
+                            setError(err.message)
                         }
                     }}>
                         Login

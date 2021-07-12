@@ -1,63 +1,13 @@
 import "./Table.css";
 import TableCell from "./TableCelll";
 import { Table } from "react-bootstrap";
-import { getEndTime, getStartTime,getPeriods } from "../Services/LessonService";
+import {
+  getEndTime,
+  getStartTime,
+  getPeriods,
+} from "../Services/LessonService";
 
-const schedules = [
-  {
-    id: 1,
-    name: "Maths",
-    type: "lab",
-    teacher: "Emiola Abdulmueez",
-    classNumber: 8,
-    group: 12,
-    day: "Tuesday",
-    week: 1,
-    start: "10:00",
-    periods: 1,
-    canEdit:true
-  },
-  {
-    id: 2,
-    name: "Maths",
-    type: "practical",
-    teacher: "Emiola Abdulmueez",
-    classNumber: 8,
-    group: 12,
-    day: "Monday",
-    week: 2,
-    start: "12:00",
-    periods: 4,
-    canEdit:false
-  },
-  {
-    id: 3,
-    name: "Maths",
-    type: "lecture",
-    teacher: "Emiola Abdulmueez",
-    classNumber: 8,
-    group: 12,
-    day: "Friday",
-    week: 1,
-    start: "12:00",
-    periods: 4,
-    canEdit:false
-  },
-  {
-    id: 2,
-    name: "Maths",
-    type: "lab",
-    teacher: "Emiola Abdulmueez",
-    classNumber: 8,
-    group: 12,
-    day: "Friday",
-    week: 1,
-    start: "13:00",
-    periods: 1,
-    canEdit:true
-  },
-];
-export default function ScheduleTable({items}) {
+export default function ScheduleTable({ items }) {
   const days = [
     "Monday",
     "Tuesday",
@@ -66,23 +16,55 @@ export default function ScheduleTable({items}) {
     "Friday",
     "Saturday",
   ];
-  const startHours = getStartTime()
-  
+  const startHours = getStartTime();
+  const endHours = getEndTime();
+
+  const checkFree = (day, week, hourStart) => {
+    let itemsFiltered = items.filter(
+      (x) => days[x.day] === day && x.week === week
+    );
+    let startHourIndex = startHours.findIndex((hour) => hour === hourStart);
+    let item = itemsFiltered.find(
+      (item) =>
+        startHours.findIndex((hour) => hour === item.start) <= startHourIndex &&
+        endHours.findIndex((hour) => hour === item.end) >= startHourIndex
+    );
+    return item === undefined
+  };
+
   const getLesson = (day, week, hour) => {
     let item = items.find(
       (x) => days[x.day] === day && x.week === week && x.start === hour
     );
 
-    if(item !== undefined){
-        return <td rowSpan={getPeriods(item.start,item.end)} style={{
-            verticalAlign:"middle"
-        }}>
-                    <TableCell name={item.name} type={item.type} teacher={item.teacher} 
-                        classroom={item.classNumber} group={item.group} start={item.start}
-                        end={item.end} canEdit={item.canEdit} id={item.id}/>
-                </td>
-    }else{
-        return <td></td>
+    if (item !== undefined) {
+      return (
+        <td
+          rowSpan={getPeriods(item.start, item.end)}
+          style={{
+            verticalAlign: "middle",
+          }}
+        >
+          <TableCell
+
+            name={item.name}
+            type={item.type}
+            teacher={item.teacher}
+            classroom={item.classNumber}
+            group={item.group}
+            start={item.start}
+            end={item.end}
+            canEdit={item.canEdit}
+            id={item.id}
+          />
+        </td>
+      );
+    } else {
+      if(checkFree(day,week,hour)){
+        return <td></td>;
+      }else{
+        return ""
+      }
     }
   };
 
@@ -104,10 +86,10 @@ export default function ScheduleTable({items}) {
         </thead>
         <tbody>
           {startHours.map((hour) => (
-            <tr key={hour}> 
+            <tr key={hour}>
               <th>{hour}</th>
               {days.map((day) =>
-                [1, 2].map((week) =>getLesson(day,week,hour))
+                [1, 2].map((week) => getLesson(day, week, hour))
               )}
             </tr>
           ))}

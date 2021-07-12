@@ -3,8 +3,7 @@ import ScheduleTable from "./Table";
 import { useState, useEffect } from "react";
 import {
   getGroups,
-  getLessonsByGroup,
-  getPeriods,
+  getLessonsByGroup
 } from "../Services/LessonService";
 import { getTeacherId } from "../Services/AuthenticationService";
 
@@ -32,6 +31,8 @@ export default function ScheduleByGroup() {
             className="p-2 my-2 fullWidth"
             onChange={(e) => {
               setSelectedFaculty(e.target.value);
+              setSelectedYear("")
+              setSelectedGroup("")
             }}
           >
             <option value="">Select Faculty</option>
@@ -51,6 +52,7 @@ export default function ScheduleByGroup() {
             className="p-2 my-2 fullWidth"
             onChange={(e) => {
               setSelectedYear(e.target.value);
+              setSelectedGroup("")
             }}
           >
             <option value="">Select Courses</option>
@@ -89,6 +91,7 @@ export default function ScheduleByGroup() {
             variant="success"
             type="button"
             className="mx-2 my-2 blockButton"
+            disabled={!selectedGroup}
             onClick={async () => {
               let items = await getLessonsByGroup(selectedGroup);
               let values = items.map((x) => {
@@ -96,7 +99,7 @@ export default function ScheduleByGroup() {
                   id: x.id,
                   name: x.courseName,
                   type: x.lessonType,
-                  teacher: x.teacher.department,
+                  teacher: x.teacher.userName,
                   classNumber: x.classroom.roomNumber,
                   group: x.group.groupNumber,
                   day: x.day,

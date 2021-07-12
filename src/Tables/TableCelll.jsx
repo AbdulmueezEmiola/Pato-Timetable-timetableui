@@ -1,5 +1,5 @@
 import { Card,Button,ButtonGroup } from "react-bootstrap"
-import { deleteLesson } from "../Services/LessonService"
+import { deleteLesson,getLessonType } from "../Services/LessonService"
 import { useHistory } from "react-router"
 
 export default function TableCell({id,name,type,teacher,classroom,group,start,end,canEdit}){
@@ -26,7 +26,7 @@ export default function TableCell({id,name,type,teacher,classroom,group,start,en
             <Card.Header >{name}</Card.Header>      
             <Card.Body >    
                 <Card.Text>Time <em>{start} - {end}</em></Card.Text>
-                <Card.Text>Lesson Type <em>{type}</em></Card.Text>
+                <Card.Text>Lesson Type <em>{getLessonType(type)}</em></Card.Text>
                 <Card.Text>Teacher <em>{teacher}</em></Card.Text>
                 <Card.Text>Classroom <em>{classroom}</em></Card.Text>
                 <Card.Text>Group <em>{group}</em></Card.Text>
