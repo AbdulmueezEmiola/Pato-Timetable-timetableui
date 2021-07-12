@@ -128,7 +128,7 @@ export default function Create() {
                     <option value="">Please select the week type</option>
                     <option value="1">Odd</option>
                     <option value="2">Even</option>                    
-                    <option value="3">Both</option>
+                    {!id && <option value="3">Both</option>}
                   </Form.Control>
                 </Col>
                 <Col sm="12" lg="6" className="py-2 px-1">

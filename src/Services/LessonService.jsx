@@ -113,12 +113,19 @@ export async function getLesson(id) {
 
 export async function editLesson(id, data) {
   const url = getBaseUrl() + "Lessons/" + id;
-  let value = await axios
-    .put(url, data)
+  await axios
+    .put(url, data, config)
     .then((value) => value)
-    .catch((err) => err);
-  console.log(value);
-  return value.data;
+    .catch((err) => {
+      if (err.response.status === 401 || err.response.status === 403) {
+        throw new Error("Unauthorized");
+      } else if (err.response.status === 400) {
+        const error = { message: "Details", errors: err.response.data };
+        throw error;
+      } else {
+        throw new Error("Internal Error");
+      }
+    });  
 }
 
 export function getLessonType(value) {
