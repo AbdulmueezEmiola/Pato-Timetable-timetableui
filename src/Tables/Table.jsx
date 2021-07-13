@@ -7,7 +7,7 @@ import {
   getPeriods,
 } from "../Services/LessonService";
 
-export default function ScheduleTable({ items }) {
+export default function ScheduleTable({ items,onDelete }) {
   const days = [
     "Monday",
     "Tuesday",
@@ -56,6 +56,7 @@ export default function ScheduleTable({ items }) {
             end={item.end}
             canEdit={item.canEdit}
             id={item.id}
+            onDelete={onDelete}
           />
         </td>
       );

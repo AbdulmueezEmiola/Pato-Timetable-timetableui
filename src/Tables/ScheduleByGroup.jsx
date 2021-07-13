@@ -116,7 +116,25 @@ export default function ScheduleByGroup() {
           </Button>
         </Col>
       </Row>
-      <ScheduleTable items={items} />
+      <ScheduleTable items={items} onDelete={async () => {
+              let items = await getLessonsByGroup(selectedGroup);
+              let values = items.map((x) => {
+                return {
+                  id: x.id,
+                  name: x.courseName,
+                  type: x.lessonType,
+                  teacher: x.teacher.userName,
+                  classNumber: x.classroom.roomNumber,
+                  group: x.group.groupNumber,
+                  day: x.day,
+                  week: x.week,
+                  start: x.startTime,
+                  end: x.endTime,
+                  canEdit: teacherId !== null && teacherId === x.teacher.id,
+                };
+              });
+              setItems(values);
+            }}/>
     </div>
   );
 }

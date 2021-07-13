@@ -28,7 +28,7 @@ export default function ScheduleByClassroom() {
             className="p-2 my-2 fullWidth"
             onChange={(e) => {
               setSelectedBuilding(e.target.value);
-              setSelectedClassroom("")
+              setSelectedClassroom("");
             }}
           >
             <option value="">Select the building</option>
@@ -37,8 +37,7 @@ export default function ScheduleByClassroom() {
               .filter((v, i, a) => a.indexOf(v) === i)
               .map((x) => (
                 <option value={x}>{x}</option>
-              ))
-            }
+              ))}
           </Form.Control>
         </Col>
         <Col>
@@ -51,17 +50,20 @@ export default function ScheduleByClassroom() {
           >
             <option value="">Please select the classroom</option>
             {classrooms
-              .filter((x) => x.buildingNumber.toLowerCase() === selectedBuilding)
-              .map((x) => {return{id:x.id,roomNumber:x.roomNumber}})
+              .filter(
+                (x) => x.buildingNumber.toLowerCase() === selectedBuilding
+              )
+              .map((x) => {
+                return { id: x.id, roomNumber: x.roomNumber };
+              })
               .filter((v, i, a) => a.indexOf(v) === i)
               .map((y) => (
                 <option value={y.id}>{y.roomNumber}</option>
-              ))
-            }
+              ))}
           </Form.Control>
         </Col>
         <Col>
-          <Button          
+          <Button
             variant="success"
             disabled={!selectedClassroom}
             type="submit"
@@ -80,9 +82,9 @@ export default function ScheduleByClassroom() {
                   week: x.week,
                   start: x.startTime,
                   end: x.endTime,
-                  canEdit: teacherId !== null && teacherId === x.teacher.id                  
-                }
-              })
+                  canEdit: teacherId !== null && teacherId === x.teacher.id,
+                };
+              });
               setItems(values);
             }}
           >
@@ -90,7 +92,28 @@ export default function ScheduleByClassroom() {
           </Button>
         </Col>
       </Row>
-      <ScheduleTable items={items} />
+      <ScheduleTable
+        items={items}
+        onDelete={async () => {
+          let items = await getLessonsByClassroom(selectedClassroom);
+          let values = items.map((x) => {
+            return {
+              id: x.id,
+              name: x.courseName,
+              type: x.lessonType,
+              teacher: x.teacher.userName,
+              classNumber: x.classroom.roomNumber,
+              group: x.group.groupNumber,
+              day: x.day,
+              week: x.week,
+              start: x.startTime,
+              end: x.endTime,
+              canEdit: teacherId !== null && teacherId === x.teacher.id,
+            };
+          });
+          setItems(values);
+        }}
+      />
     </div>
   );
 }

@@ -72,11 +72,25 @@ export default function Create() {
           lessonType: parseInt(value.lessonType),
           day: parseInt(value.day),
           id: id,
+          groupId:value.groupId,
+          classroomId:value.classroomId
+        });                
+        getBuildings().then((buildings)=>{
+          let building = buildings.find(building=>building.id === value.classroomId)
+          setSelectedBuilding(building.buildingNumber.toLowerCase())
+          setBuildings(buildings)
+        })
+        getGroups().then((groups) =>{
+          let group = groups.find(group=>group.id === value.groupId)
+          setSelectedFaculty(group.faculty.toLowerCase())
+          setSelectedYear(group.year.toString())
+          setGroups(groups)
         });
       });
+    }else{
+      getBuildings().then((x) => setBuildings(x));
+      getGroups().then((x) => setGroups(x));
     }
-    getBuildings().then((x) => setBuildings(x));
-    getGroups().then((x) => setGroups(x));
     setStartTimes(getStartTime());
     setEndTimes(getEndTime());
   }, [id]);
@@ -126,9 +140,9 @@ export default function Create() {
                     }
                   >
                     <option value="">Please select the week type</option>
-                    <option value="1">Odd</option>
-                    <option value="2">Even</option>                    
-                    {!id && <option value="3">Both</option>}
+                    <option value="1">1 Odd</option>
+                    <option value="2">2 Even</option>                    
+                    {!id && <option value="3">1 and  2</option>}
                   </Form.Control>
                 </Col>
                 <Col sm="12" lg="6" className="py-2 px-1">
@@ -229,6 +243,7 @@ export default function Create() {
                     size="lg"
                     custom
                     className="p-2 fullWidth"
+                    value={selectedBuilding}
                     onChange={(e) => {
                       setSelectedBuilding(e.target.value);
                       setFormBody({ ...formBody, classroomId: "" });
@@ -283,6 +298,7 @@ export default function Create() {
                     size="lg"
                     custom
                     className="p-2 fullWidth"
+                    value={selectedFaculty}
                     onChange={(e) => {
                       setSelectedYear("");
                       setSelectedFaculty(e.target.value);
@@ -304,6 +320,7 @@ export default function Create() {
                     size="lg"
                     custom
                     className="p-2 fullWidth"
+                    value={selectedYear}
                     onChange={(e) => {
                       setSelectedYear(e.target.value);
                       setFormBody({ ...formBody, groupId: "" });

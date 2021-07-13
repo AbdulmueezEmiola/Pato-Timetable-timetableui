@@ -2,7 +2,7 @@ import { Card,Button,ButtonGroup } from "react-bootstrap"
 import { deleteLesson,getLessonType } from "../Services/LessonService"
 import { useHistory } from "react-router"
 
-export default function TableCell({id,name,type,teacher,classroom,group,start,end,canEdit}){
+export default function TableCell({id,name,type,teacher,classroom,group,start,end,canEdit,onDelete}){
     
     const history = useHistory();
 
@@ -35,7 +35,7 @@ export default function TableCell({id,name,type,teacher,classroom,group,start,en
                     <ButtonGroup aria-label="Delete and Edit">  
                         <Button variant="danger" onClick={()=>{
                             deleteLesson(id).then(()=>{
-                                history.go(0)
+                                onDelete()
                             })
                         }}>Delete</Button>
                         <Button variant="dark" onClick={()=>{

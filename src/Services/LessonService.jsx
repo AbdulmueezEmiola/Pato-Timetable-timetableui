@@ -85,7 +85,7 @@ export async function getLessonsByTeachers(id) {
 export async function deleteLesson(id) {
   const url = getBaseUrl() + "Lessons/" + id;
   let value = await axios
-    .delete(url)
+    .delete(url,config)
     .then((value) => value)
     .catch((err) => err);
   console.log(value);
