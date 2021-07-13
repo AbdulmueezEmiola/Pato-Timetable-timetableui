@@ -101,8 +101,9 @@ export default function Create() {
 
   return (
     <div className="vertical-centered">
-      <div className="create">
-        <h2>Create a new lesson</h2>
+      <div className="create">                 
+      {!id ? <h2>Create a new lesson</h2>:<h2>Edit the lesson</h2>}
+        
         <Divider>
           <FontAwesomeIcon icon={faStar} spin />
         </Divider>
